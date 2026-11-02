@@ -1,0 +1,156 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_INCREMENTAL: 0
+  NODE_VERSION: '20'
+
+jobs:
+  # ===================== BUILD JOB =====================
+  build:
+    runs-on: windows-latest
+    outputs:
+      tag: ${{ steps.vars.outputs.tag }}
+      is_release: ${{ steps.vars.outputs.is_release }}
+
+    steps:
+      - name: Set variables
+        id: vars
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          if [[ "$GITHUB_REF" == "refs/tags/"* ]] && [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "tag=${TAG#v}" >> $GITHUB_OUTPUT
+            echo "is_release=true" >> $GITHUB_OUTPUT
+          else
+            echo "tag=build-${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "is_release=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install npm
+        run: npm ci
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm, mingw
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Generate icons
+        run: node generate-icons.js
+
+      # ---- Portable ----
+      - name: Build Portable
+        run: npm run build:portable
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+
+      - name: List portable output
+        run: dir src-tauri\target\x86_64-pc-windows-msvc\release\*.exe
+
+      - name: Upload Portable EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: portable-exe
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/*.exe
+          retention-days: 30
+
+      # ---- NSIS Installer ----
+      - name: Build NSIS
+        run: npm run build:nsis
+
+      - name: List NSIS output
+        run: dir src-tauri\target\x86_64-pc-windows-msvc\release\bundle\nsis\*.exe
+
+      - name: Upload NSIS
+        uses: actions/upload-artifact@v4
+        with:
+          name: nsis-installer
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          retention-days: 30
+
+      # ---- MSI Installer ----
+      - name: Build MSI
+        run: npm run build -- --bundles msi
+
+      - name: List MSI output
+        run: dir src-tauri\target\x86_64-pc-windows-msvc\release\bundle\msi\*.msi
+
+      - name: Upload MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: msi-installer
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
+          retention-days: 30
+
+  # ===================== CREATE RELEASE =====================
+  create-release:
+    needs: build
+    if: needs.build.outputs.is_release == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare files
+        run: |
+          mkdir release
+          cp artifacts/portable-exe/*.exe release/ 2>/dev/null || true
+          cp artifacts/nsis-installer/*.exe release/ 2>/dev/null || true
+          cp artifacts/msi-installer/*.msi release/ 2>/dev/null || true
+          ls -la release/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: release/**
+          name: Mahyar Image Tools v${{ needs.build.outputs.tag }}
+          body: |
+            ## 📷 Mahyar Image Tools v${{ needs.build.outputs.tag }}
+
+            ### Downloads:
+            - 🖇️ **Portable**: فایل EXE - بدون نیاز به نصب
+            - 📦 **Setup (NSIS)**: نصاب ویندوز با امکان تنظیمات
+            - 📋 **MSI**: فایل MSI برای نصب سازمانی/گروهی
+
+            ### Features:
+            - 🖼️ اسکرین‌شات کامل با `Ctrl+Shift+X`
+            - 🔍 تشخیص متن (OCR) با کپی خودکار
+            - 📋 کپی تصویر و متن با یک کلیک
+            - 🎨 رابط گلاسی زیبا با تم قهوه‌ای و طلایی
+            - ⚡ سبک و سریع
+
+            Built with ❤️ using Tauri
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
