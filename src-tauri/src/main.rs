@@ -6,7 +6,7 @@
 use base64::{engine::general_purpose, Engine as _};
 use chrono::Local;
 use image::codecs::png::PngEncoder;
-use image::{ImageBuffer, ImageEncoder, Rgba};
+use image::{ImageEncoder, Rgba};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
@@ -119,11 +119,10 @@ fn capture_full_screen() -> ScreenshotResult {
 
     let width = capture.width();
     let height = capture.height();
-    let rgba_data = capture.into_raw();
 
     let mut buf = Vec::new();
     let encoder = PngEncoder::new(&mut buf);
-    if let Err(e) = encoder.write_image(&img, width, height, image::ExtendedColorType::Rgba8) {
+    if let Err(e) = encoder.write_image(&capture, width, height, image::ExtendedColorType::Rgba8) {
         error!("Failed to encode image: {}", e);
         return ScreenshotResult {
             success: false,
