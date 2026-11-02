@@ -4,9 +4,6 @@
   "version": "1.0.0",
   "identifier": "com.mahyar.imagetools",
   "build": {
-    "beforeDevCommand": "",
-    "devUrl": "",
-    "beforeBuildCommand": "",
     "frontendDist": "../src"
   },
   "app": {
