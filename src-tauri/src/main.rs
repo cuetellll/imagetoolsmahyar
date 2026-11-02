@@ -9,7 +9,6 @@ use image::codecs::png::PngEncoder;
 use image::{ImageBuffer, ImageEncoder, Rgba};
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::io::Cursor;
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::{
@@ -18,7 +17,7 @@ use tauri::{
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     AppHandle, Emitter, Manager, State,
 };
-use tracing::{error, info, Level};
+use tracing::{error, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
@@ -118,12 +117,9 @@ fn capture_full_screen() -> ScreenshotResult {
         }
     };
 
-    let rgba_data = capture.rgba().to_vec();
     let width = capture.width();
     let height = capture.height();
-
-    let img: ImageBuffer<Rgba<u8>, Vec<u8>> =
-        ImageBuffer::from_raw(width, height, rgba_data).unwrap();
+    let rgba_data = capture.into_raw();
 
     let mut buf = Vec::new();
     let encoder = PngEncoder::new(&mut buf);
