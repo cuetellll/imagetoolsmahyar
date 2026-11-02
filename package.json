@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "tauri dev",
     "build": "tauri build",
-    "build:portable": "tauri build --bundles none",
     "build:nsis": "tauri build --bundles nsis",
     "generate-icons": "node generate-icons.js"
   },
