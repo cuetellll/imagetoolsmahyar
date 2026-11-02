@@ -111,7 +111,9 @@ jobs:
         with:
           draft: false
           prerelease: false
-          files: '*.exe' '*.msi'
+          files: |
+            *.exe
+            *.msi
           body: |
             ## 📷 Mahyar Image Tools
 
