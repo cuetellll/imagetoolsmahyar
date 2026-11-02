@@ -53,8 +53,6 @@ jobs:
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          components: llvm, mingw
 
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
