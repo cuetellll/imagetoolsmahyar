@@ -51,8 +51,8 @@
         "headerImage": null,
         "sidebarImage": null,
         "installMode": "currentUser",
-        "languages": ["English", "Persian"],
-        "displayLanguageSelector": true
+        "languages": ["English"],
+        "displayLanguageSelector": false
       }
     }
   },
