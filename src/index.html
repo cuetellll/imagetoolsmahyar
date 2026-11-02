@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahyar Image Tools</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --coffee-dark: #1a1410;
+            --coffee-medium: #2d241c;
+            --coffee-light: #4a3b30;
+            --cream: #f5f0e8;
+            --gold: #c9a961;
+            --gold-light: #e8d5a3;
+            --gold-glow: rgba(201, 169, 97, 0.4);
+            --glass-bg: rgba(45, 36, 28, 0.6);
+            --glass-border: rgba(201, 169, 97, 0.2);
+            --success: #6db33f;
+            --error: #d64545;
+        }
+
+        body {
+            font-family: 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, var(--coffee-dark) 0%, var(--coffee-medium) 50%, #1a1512 100%);
+            min-height: 100vh;
+            color: var(--cream);
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .background-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--gold);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: #8b6914;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: var(--gold-light);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.95); }
+            75% { transform: translate(-50px, -30px) scale(1.05); }
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 20px var(--gold-glow);
+        }
+
+        .logo-text h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .logo-text span {
+            font-size: 0.75rem;
+            color: var(--cream);
+            opacity: 0.7;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold) 0%, #b8942e 100%);
+            color: var(--coffee-dark);
+            box-shadow: 0 4px 15px var(--gold-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px var(--gold-glow);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: var(--cream);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(201, 169, 97, 0.2);
+            border-color: var(--gold);
+        }
+
+        .btn-icon {
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .preview-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gold);
+        }
+
+        .preview-area {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 2px dashed var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .preview-area.has-image {
+            border-style: solid;
+            border-color: var(--gold);
+        }
+
+        .preview-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: var(--cream);
+            opacity: 0.5;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .preview-image.visible {
+            display: block;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: slideLeft 0.5s ease-out 0.3s both;
+        }
+
+        @keyframes slideLeft {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 20px 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--cream);
+        }
+
+        .action-btn:hover {
+            background: rgba(201, 169, 97, 0.15);
+            border-color: var(--gold);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-btn .icon {
+            font-size: 2rem;
+        }
+
+        .action-btn span {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .hotkey-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(201, 169, 97, 0.1);
+            border-radius: 10px;
+            font-size: 0.85rem;
+        }
+
+        .hotkey-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: var(--coffee-dark);
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--gold);
+            box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        .ocr-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ocr-result {
+            flex: 1;
+            min-height: 150px;
+            max-height: 200px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            border: 1px solid var(--glass-border);
+            color: var(--cream);
+        }
+
+        .ocr-result::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .ocr-result::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .ocr-result::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 3px;
+        }
+
+        .ocr-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .ocr-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 15px 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--error); }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 20, 16, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--glass-border);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .minimize-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: rgba(45, 36, 28, 0.8);
+            border: 1px solid var(--glass-border);
+            color: var(--cream);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .minimize-btn:hover {
+            opacity: 1;
+            color: var(--gold);
+            border-color: var(--gold);
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-left: 1px solid var(--glass-border);
+            padding: 30px;
+            transition: right 0.4s ease;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .settings-panel-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gold);
+        }
+
+        .close-settings {
+            background: none;
+            border: none;
+            color: var(--cream);
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .close-settings:hover {
+            opacity: 1;
+            color: var(--gold);
+        }
+
+        .settings-group {
+            margin-bottom: 25px;
+        }
+
+        .settings-group-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .settings-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--cream);
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .settings-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        .browse-btn {
+            margin-top: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: var(--coffee-dark);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid var(--glass-border);
+        }
+
+        .toggle.active {
+            background: var(--gold);
+            border-color: var(--gold-light);
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: var(--cream);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle.active::after {
+            left: 26px;
+        }
+
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .card {
+                flex: 1;
+                min-width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <button class="minimize-btn" onclick="minimizeWindow()" title="مخفی کردن">−</button>
+
+    <div class="main-container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">📷</div>
+                <div class="logo-text">
+                    <h1>Mahyar Image Tools</h1>
+                    <span>ابزار تصویر حرفه‌ای</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary btn-icon" onclick="openSettings()" title="تنظیمات">⚙️</button>
+                <button class="btn btn-primary" onclick="captureFullScreen()">
+                    📸 اسکرین‌شات کامل
+                </button>
+            </div>
+        </header>
+
+        <main class="content">
+            <section class="preview-section">
+                <h2 class="section-title">
+                    <span>🖼️</span>
+                    پیش‌نمایش تصویر
+                </h2>
+                <div class="preview-area" id="previewArea">
+                    <div class="preview-placeholder" id="placeholder">
+                        <span style="font-size: 4rem;">📷</span>
+                        <p>تصویری انتخاب نشده است</p>
+                        <small>Ctrl+Shift+X را فشار دهید یا دکمه اسکرین‌شات را بزنید</small>
+                    </div>
+                    <img class="preview-image" id="previewImage" alt="Preview">
+                </div>
+            </section>
+
+            <aside class="sidebar">
+                <div class="card">
+                    <h3 class="section-title">
+                        <span>⚡</span>
+                        اقدامات سریع
+                    </h3>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="captureFullScreen()">
+                            <span class="icon">🖥️</span>
+                            <span>کامل</span>
+                        </button>
+                        <button class="action-btn" onclick="saveImage()">
+                            <span class="icon">💾</span>
+                            <span>ذخیره</span>
+                        </button>
+                        <button class="action-btn" onclick="copyImage()">
+                            <span class="icon">📋</span>
+                            <span>کپی تصویر</span>
+                        </button>
+                        <button class="action-btn" onclick="copyText()">
+                            <span class="icon">📝</span>
+                            <span>کپی متن</span>
+                        </button>
+                    </div>
+                    <div class="hotkey-info">
+                        <span>شورتکات:</span>
+                        <span class="hotkey-badge" id="hotkeyDisplay">Ctrl + Shift + X</span>
+                    </div>
+                </div>
+
+                <div class="card ocr-section">
+                    <h3 class="section-title">
+                        <span>🔍</span>
+                        تشخیص متن (OCR)
+                    </h3>
+                    <div class="ocr-result" id="ocrResult">
+                        متن استخراج شده اینجا نمایش داده می‌شود...
+                    </div>
+                    <div class="ocr-actions">
+                        <button class="btn btn-secondary" onclick="performOCR()">
+                            استخراج متن
+                        </button>
+                        <button class="btn btn-primary" onclick="copyText()">
+                            کپی متن
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="section-title">
+                        <span>📁</span>
+                        مسیر ذخیره
+                    </h3>
+                    <p id="savePath" style="font-size: 0.8rem; opacity: 0.7; word-break: break-all;">در حال بارگذاری...</p>
+                    <button class="btn btn-secondary" onclick="openFolder()" style="margin-top: 10px; width: 100%; justify-content: center;">
+                        📂 باز کردن پوشه
+                    </button>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-panel-header">
+            <h2 class="settings-panel-title">تنظیمات</h2>
+            <button class="close-settings" onclick="closeSettings()">✕</button>
+        </div>
+
+        <div class="settings-group">
+            <h4 class="settings-group-title">کلید میانبر</h4>
+            <input type="text" class="settings-input" id="shortcutInput" value="Ctrl+Shift+X" readonly>
+        </div>
+
+        <div class="settings-group">
+            <h4 class="settings-group-title">مسیر ذخیره</h4>
+            <input type="text" class="settings-input" id="pathInput" readonly>
+            <button class="btn btn-secondary browse-btn" onclick="browseFolder()">انتخاب پوشه</button>
+        </div>
+
+        <div class="settings-group">
+            <h4 class="settings-group-title">تنظیمات</h4>
+            <div class="setting-item">
+                <span>کپی خودکار متن پس از OCR</span>
+                <div class="toggle active" id="autoCopyToggle" onclick="toggleSetting('autoCopy')"></div>
+            </div>
+            <div class="setting-item">
+                <span>نمایش نوتیفیکیشن</span>
+                <div class="toggle active" id="notifyToggle" onclick="toggleSetting('notification')"></div>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <h4 class="settings-group-title">درباره</h4>
+            <p style="font-size: 0.85rem; opacity: 0.7;">
+                Mahyar Image Tools v1.0.0<br>
+                ساخته شده با ❤️ توسط ماهیار
+            </p>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span id="toastIcon">✓</span>
+        <span id="toastMessage">عملیات با موفقیت انجام شد</span>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
