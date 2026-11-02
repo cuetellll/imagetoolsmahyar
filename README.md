@@ -36,6 +36,37 @@
 
 ---
 
+## 🚀 CI/CD with GitHub Actions
+
+This project uses GitHub Actions for automatic builds on every push and release.
+
+### What Gets Built:
+
+| Artifact | Description | When |
+|----------|-------------|------|
+| `MahyarImageTools.exe` | Portable version (no install needed) | Every push |
+| Setup `.exe` | NSIS installer | Every push |
+| Setup `.msi` | MSI installer for enterprise | Every push |
+
+### Creating a Release:
+
+1. **Simple way** - Push a tag:
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+2. **Or use GitHub UI**:
+   - Go to Releases → Draft a new release
+   - Add version tag (e.g., `v1.0.0`)
+   - Publish release
+
+### Download Build Artifacts:
+
+After any push to `main`, go to the **Actions** tab → select a workflow run → download artifacts from the Summary page.
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
