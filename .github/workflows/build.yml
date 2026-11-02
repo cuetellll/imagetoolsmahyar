@@ -14,7 +14,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  CARGO_INCREMENTAL: 0
   NODE_VERSION: '20'
 
 jobs:
@@ -44,39 +43,33 @@ jobs:
       - name: Generate icons
         run: node generate-icons.js
 
-      # Build with NSIS (includes exe in release folder)
-      - name: Build with NSIS
+      # Build NSIS
+      - name: Build NSIS
         run: npm run build:nsis
 
-      - name: Find EXE file
-        id: exe
+      - name: Find exe
         run: |
-          $exe = Get-ChildItem -Path "src-tauri/target/x86_64-pc-windows-msvc/release" -Filter "*.exe" -File | Select-Object -First 1
-          if ($exe) {
-            echo "path=$($exe.FullName)" >> $env:GITHUB_OUTPUT
-            echo "name=$($exe.Name)" >> $env:GITHUB_OUTPUT
-          }
-        shell: pwsh
+          echo "=== Release folder ===" && dir src-tauri/target\release\*.exe 2>nul || echo "Not in release"
+          echo "=== MSVC Release ===" && dir src-tauri\target\x86_64-pc-windows-msvc\release\*.exe 2>nul || echo "Not in MSVC"
+          echo "=== Bundle NSIS ===" && dir src-tauri\target\release\bundle\nsis\*.exe 2>nul || echo "Not in bundle"
 
-      - name: List release folder
-        run: dir src-tauri/target/x86_64-pc-windows-msvc/release/
-
-      - name: List NSIS output
-        run: dir src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/
-
-      - name: Upload EXE
+      - name: Upload Portable EXE
         uses: actions/upload-artifact@v4
         with:
           name: MahyarImageTools-Portable
           path: |
+            src-tauri/target/release/*.exe
             src-tauri/target/x86_64-pc-windows-msvc/release/*.exe
           retention-days: 30
+          ignore-paths: |
+            **/bundle/**
 
       - name: Upload NSIS Installer
         uses: actions/upload-artifact@v4
         with:
           name: MahyarImageTools-Setup
           path: |
+            src-tauri/target/release/bundle/nsis/*.exe
             src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
           retention-days: 30
 
@@ -88,6 +81,7 @@ jobs:
         with:
           name: MahyarImageTools-MSI
           path: |
+            src-tauri/target/release/bundle/msi/*.msi
             src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
           retention-days: 30
 
@@ -121,11 +115,5 @@ jobs:
             - 🖇️ **Portable**: فایل EXE - بدون نیاز به نصب
             - 📦 **Setup (NSIS)**: نصاب ویندوز
             - 📋 **MSI**: فایل MSI برای نصب سازمانی
-
-            ### Features:
-            - 🖼️ اسکرین‌شات با `Ctrl+Shift+X`
-            - 🔍 تشخیص متن (OCR)
-            - 📋 کپی تصویر و متن
-            - 🎨 رابط گلاسی زیبا
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
